@@ -1,34 +1,9 @@
-/*
- * Terrier - Terabyte Retriever 
- * Webpage: http://terrier.org 
- * Contact: terrier{a.}dcs.gla.ac.uk
- * University of Glasgow - School of Computing Science
- * http://www.gla.ac.uk/
- * 
- * The contents of this file are subject to the Mozilla Public License
- * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
- * the License for the specific language governing rights and limitations
- * under the License.
- *
- * The Original Code is CrawlStrategy.java.
- *
- * The Original Code is Copyright (C) 2004-2014 the University of Glasgow.
- * All Rights Reserved.
- *
- * Contributor(s):
- *   Richard McCreadie <richard.mccreadie@glasgow.ac.uk>
- */
-
 package edu.nd.sirs.websitesearch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Calendar;
@@ -36,32 +11,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 
-/**
- * Overrides Crawler4J methods in WebCrawler to enable restriction to a named
- * host and to connect to the Terrier index.
- * 
- * This class auto-configures by overriding variables normally loaded from the
- * terrier.properties file as follows:
- * <ul>
- * <li>TaggedDocument.abstracts</tt> = title,content</li>
- * <li>TaggedDocument.abstracts.tags</tt> = title,ELSE</li>
- * <li>TaggedDocument.abstracts.lengths</tt> = 140,5000</li>
- * <li>WebCrawlerTags.process</tt> = p,title</li>
- * <li>WebCrawlerTags.skip</tt> = ""</li>
- * <li>WebCrawlerTags.casesensitive</tt> = false</li>
- * <li>trec.model</tt> = DirichletLM</li>
- * </ul>
- * 
- * @author Richard McCreadie
- * @since 4.0
- */
 public class CrawlStrategy extends WebCrawler {
 
+	private static Logger logger = LoggerFactory
+			.getLogger(CrawlStrategy.class);
+	
 	private final static Pattern FILTERS = Pattern
 			.compile(".*(\\.(css|js|bmp|gif|jpe?g"
 					+ "|png|tiff?|mid|mp2|mp3|mp4"
@@ -78,8 +40,10 @@ public class CrawlStrategy extends WebCrawler {
 	File crawlStore;
 	Calendar c = Calendar.getInstance();
 
+	/**
+	 * Initializes the Crawler Strategy from the CustomData
+	 */
 	public void init() {
-
 		CustomData data = (CustomData) this.getMyController().getCustomData();
 		hostname = data.getHost();
 		crawlStore = data.getCrawlStore();
@@ -92,22 +56,19 @@ public class CrawlStrategy extends WebCrawler {
 			init();
 		String href = url.getURL().toLowerCase();
 
-		System.err.println("Considering " + href + "(" + hostname + ")");
+		logger.info("Considering " + href + "(" + hostname + ")");
 
 		this.getMyController().getCustomData();
 		return !FILTERS.matcher(href).matches() && href.contains(hostname);
 	}
 
-	/**
-	 * Get the page and make a Terrier document from it
-	 */
 	@SuppressWarnings("deprecation")
 	@Override
 	public void visit(Page page) {
 		if (!configured)
 			init();
 		String url = page.getWebURL().getURL();
-		System.out.println("URL: " + url);
+		logger.trace("URL: " + url);
 
 		if (page.getParseData() instanceof HtmlParseData) {
 			HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
@@ -116,25 +77,23 @@ public class CrawlStrategy extends WebCrawler {
 			Map<String, String> docProperties = new HashMap<String, String>();
 			docProperties.put("encoding", "UTF-8");
 			docProperties.put("URL", url);
-			// docProperties.put("content", text);
 			c.setTimeInMillis(System.currentTimeMillis());
 			docProperties.put("time", c.getTime().toGMTString());
 
 			FileOutputStream outputStream = null;
 			try {
-				outputStream = new FileOutputStream(crawlStore + "/" + URLEncoder.encode(url, "UTF-8"));
+				outputStream = new FileOutputStream(crawlStore + "/"
+						+ URLEncoder.encode(url, "UTF-8"));
 			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (UnsupportedEncodingException e) {			
-				e.printStackTrace();
-			}				
+				logger.error("File Not found", e1);
+			} catch (UnsupportedEncodingException e) {
+				logger.error("UTF not supported", e);
+			}
 
-
-			
 			try {
-				outputStream.write(html.getBytes("UTF-8"));				
-			} catch (Exception e) {
-				e.printStackTrace();
+				outputStream.write(html.getBytes("UTF-8"));
+			} catch (IOException e) {
+				logger.error("Error writing html", e);
 			}
 		}
 	}
