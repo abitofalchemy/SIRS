@@ -24,7 +24,7 @@
 	<div class="container">
 		<div class="page-header">
 			<h1>
-				<img src="ND_monogram_blue_S.png" /> Simple Information Retreival System
+				<img src="ND_monogram_blue_S.png" /> Simple Information Retrieval System
 			</h1>
 		</div>
 	</div>
