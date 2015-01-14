@@ -5,9 +5,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * Tokenizes based on non-word-character spaces (space, tab, comma, etc)
+ * 
+ * @author tweninge
+ *
+ */
 public class WhitespaceTextTokenizer implements ITokenizer {
 
 	public List<String> tokenize(FileReader fr) {
@@ -29,6 +34,6 @@ public class WhitespaceTextTokenizer implements ITokenizer {
 	}
 
 	public List<String> tokenize(String str) {
-		return Arrays.asList(str.split("\\W+"));		
+		return Arrays.asList(str.split("\\W+"));
 	}
 }

@@ -90,7 +90,7 @@ public class CrawlerProcess {
 	private static final String TMP = "./data/crawl/tmp";
 	private static final String CRL = "./data/crawl";
 	private static final String URL = "http://cse.nd.edu/";
-	private static final Integer DPT = 2;
+	private static final Integer DPT = 4;
 
 	public static void main(String[] args) {
 

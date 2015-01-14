@@ -4,7 +4,13 @@ import java.util.Collection;
 
 import edu.nd.sirs.util.HeapSort;
 
-
+/**
+ * Result object that is passed to the Web search engine. Contains ranked list
+ * of results and scores
+ * 
+ * @author tweninge
+ *
+ */
 public class ResultSet {
 
 	private int resultSize;
@@ -13,6 +19,12 @@ public class ResultSet {
 	private float[] scores;
 	private short[] occurrences;
 
+	/**
+	 * Simple Constructor
+	 * 
+	 * @param q
+	 *            List of hits
+	 */
 	public ResultSet(Collection<Hit> q) {
 		resultSize = q.size();
 		exactResultSize = resultSize;
@@ -58,6 +70,12 @@ public class ResultSet {
 		return exactResultSize;
 	}
 
+	/**
+	 * Sort documents such that we only return the top documents
+	 * 
+	 * @param topDocs
+	 *            number of documents to return after sorting
+	 */
 	public void sort(int topDocs) {
 		HeapSort.descendingHeapSort(getScores(), getDocids(), getOccurrences(),
 				topDocs);

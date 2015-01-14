@@ -3,20 +3,41 @@ package edu.nd.sirs.index;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Lexicon singleton class handles reading and writing to the lexicon on disk
+ * 
+ * @author tweninge
+ *
+ */
 public class Lexicon {
+	private static Logger logger = LoggerFactory.getLogger(Lexicon.class);
+
+	private static final String LEXICON = "./data/lex.txt";
+
 	private static Lexicon me = null;
 	private RandomAccessFile lex;
 	private long length;
 
+	/**
+	 * Singleton constructor, use getInstance()
+	 */
 	private Lexicon() {
 		try {
-			lex = new RandomAccessFile("./data/lex.txt", "r");
+			lex = new RandomAccessFile(LEXICON, "r");
 			length = lex.length();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Cannot find lexicon file", e);
 		}
 	}
 
+	/**
+	 * Singleton instance getter.
+	 * 
+	 * @return InvertedIndex object
+	 */
 	public static Lexicon getInstance() {
 		if (me == null) {
 			me = new Lexicon();
@@ -25,6 +46,13 @@ public class Lexicon {
 		return me;
 	}
 
+	/**
+	 * Perform binary search to find term id from lexicon file.
+	 * 
+	 * @param term
+	 *            String term token
+	 * @return termId corresponding to term or -1 if term not found
+	 */
 	public int getTermId(String term) {
 		long low = 0;
 		long high = length;
@@ -52,6 +80,18 @@ public class Lexicon {
 		return -1;
 	}
 
+	/**
+	 * Scan to find the termId, typically we do this after we get close using
+	 * the binary search method.
+	 * 
+	 * @param pos
+	 *            position to start searching at
+	 * @param high
+	 *            position to search until
+	 * @param term
+	 *            term we're looking for
+	 * @return termId corresponding to term or -1 if term not found
+	 */
 	private int scanToFind(long pos, long high, String term) {
 		try {
 			lex.seek(pos);
@@ -72,12 +112,21 @@ public class Lexicon {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error reading file", e);
 		}
 		return -1;
 	}
 
+	/**
+	 * Reads the lexicon index at this position
+	 * 
+	 * @param pos
+	 *            file position
+	 * @param term
+	 *            Term to look for
+	 * @return term termId if term is found otherwise -3 if location lower or -1
+	 *         if location higher
+	 */
 	private int compareTo(long pos, String term) {
 		try {
 			lex.seek(pos);
@@ -90,15 +139,20 @@ public class Lexicon {
 			}
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error reading file", e);
 		}
 
 		return -3;
 	}
 
+	/**
+	 * Simple testing main method
+	 * 
+	 * @param args
+	 *            none needed
+	 */
 	public static void main(String[] args) {
 		Lexicon lex = Lexicon.getInstance();
-		System.out.println(lex.getTermId("weninger"));
+		System.out.println(lex.getTermId("Web"));
 	}
 }

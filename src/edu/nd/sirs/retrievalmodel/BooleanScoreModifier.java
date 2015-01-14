@@ -4,8 +4,17 @@ import edu.nd.sirs.index.InvertedIndex;
 import edu.nd.sirs.query.Query;
 import edu.nd.sirs.query.ResultSet;
 
+/**
+ * Boolean Modifier that performs a basic intersection on all results.
+ * 
+ * @author tweninge
+ *
+ */
 public class BooleanScoreModifier implements ScoreModifier {
 
+	/**
+	 * Intersection
+	 */
 	public boolean modifyScores(InvertedIndex index, Query query,
 			ResultSet resultSet) {
 		short[] occurrences = resultSet.getOccurrences();

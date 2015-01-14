@@ -7,14 +7,33 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Inverted Index singleton class handles reading and writing to the inverted
+ * index on disk
+ * 
+ * @author tweninge
+ *
+ */
 public class InvertedIndex {
+	private static Logger logger = LoggerFactory.getLogger(InvertedIndex.class);
+
+	private static final String IDX = "./data/idx.txt";
+	private static final String IDXTERMOFFSET = "./data/idx_term_offset.txt";
+
 	private static InvertedIndex me = null;
 	private long[] offsets;
 	private RandomAccessFile idx;
 
+	/**
+	 * Singleton constructor, use getInstance()
+	 */
 	private InvertedIndex() {
 		try {
-			idx = new RandomAccessFile("./data/idx.txt", "r");
+			logger.info("Creating InvertedIndex singleton object.");
+			idx = new RandomAccessFile(IDX, "r");
 			loadOffsets();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -22,9 +41,14 @@ public class InvertedIndex {
 
 	}
 
+	/**
+	 * Load the offsets into memory
+	 * 
+	 * @throws IOException
+	 */
 	private void loadOffsets() throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(
-				"./data/idx_term_offset.txt"));
+		logger.info("loading term offsets into memory.");
+		BufferedReader br = new BufferedReader(new FileReader(IDXTERMOFFSET));
 		String line = br.readLine(); // number of terms
 		int terms = Integer.parseInt(line);
 		offsets = new long[terms];
@@ -35,6 +59,11 @@ public class InvertedIndex {
 		br.close();
 	}
 
+	/**
+	 * Singleton instance getter.
+	 * 
+	 * @return InvertedIndex object
+	 */
 	public static InvertedIndex getInstance() {
 		if (me == null) {
 			me = new InvertedIndex();
@@ -43,7 +72,13 @@ public class InvertedIndex {
 		return me;
 	}
 
-	public List<Posting> getPostings(int termid) {	
+	/**
+	 * Uses the offset data to do disk seek and retrieve posting from disk
+	 * 
+	 * @param termid
+	 * @return
+	 */
+	public List<Posting> getPostings(int termid) {
 		List<Posting> postings = new ArrayList<Posting>();
 		long offset = offsets[termid];
 		try {
@@ -53,7 +88,7 @@ public class InvertedIndex {
 				if (line == null || line.isEmpty())
 					break;
 				Posting p = new Posting(line);
-				if (termid != p.term)
+				if (termid != p.getTermId())
 					break;
 				postings.add(p);
 			}
@@ -62,8 +97,14 @@ public class InvertedIndex {
 		}
 		return postings;
 	}
-	
-	public static void main(String[] args){
+
+	/**
+	 * Simple testing main method
+	 * 
+	 * @param args
+	 *            none needed
+	 */
+	public static void main(String[] args) {
 		InvertedIndex idx = InvertedIndex.getInstance();
 		List<Posting> x = idx.getPostings(100);
 		System.out.println(x);

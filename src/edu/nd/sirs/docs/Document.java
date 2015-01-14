@@ -5,12 +5,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Abstract class that represents a general Document.
+ * 
+ * @author tweninge
+ *
+ */
 public abstract class Document {
 	protected String name;
 	protected int docId;
 	protected int numTokens;
 	protected Map<String, String> resources;
 
+	/**
+	 * Constructor from indexer
+	 * 
+	 * @param docId
+	 *            document ID
+	 * @param file
+	 *            File to parse
+	 */
 	public Document(Integer docId, File file) {
 		this.docId = docId;
 		this.name = file.getName();
@@ -18,6 +32,14 @@ public abstract class Document {
 		resources = new HashMap<String, String>();
 	}
 
+	/**
+	 * Constructor from index reader
+	 * 
+	 * @param docId
+	 *            document ID
+	 * @param line
+	 *            Text tokens to read
+	 */
 	public Document(Integer docId, String line) {
 		this.docId = docId;
 		this.name = "";
@@ -38,6 +60,14 @@ public abstract class Document {
 		return numTokens;
 	}
 
+	/**
+	 * Creates a String to write to direct document index including all extra
+	 * information
+	 * 
+	 * Expected to be overridden by subclasses
+	 * 
+	 * @return String representation of a document
+	 */
 	public String writeToIndex() {
 		StringBuffer sb = new StringBuffer();
 
@@ -50,6 +80,14 @@ public abstract class Document {
 		return sb.toString();
 	}
 
+	/**
+	 * Reads data that was previous written to file by writeToIndex() function.
+	 * 
+	 * Should be overridden when writeToIndex is overridden
+	 * 
+	 * @param line
+	 *            line to read
+	 */
 	public void readFromIndex(String line) {
 		String[] s = line.split("\t");
 		docId = Integer.parseInt(s[0]);
@@ -61,6 +99,16 @@ public abstract class Document {
 		}
 	}
 
-	public abstract List<String> parse(Integer docId, File f);
+	/**
+	 * Parse the file. This function uses should parse a file and return
+	 * normalized tokens for indexing.
+	 * 
+	 * @param docId
+	 *            document ID
+	 * @param file
+	 *            File to parse
+	 * @return Collection of Text Tokens
+	 */
+	public abstract List<String> parse(Integer docId, File file);
 
 }

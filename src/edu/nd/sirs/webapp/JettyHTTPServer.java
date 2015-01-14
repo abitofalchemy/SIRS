@@ -22,6 +22,12 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+/**
+ * Simple Jetty Server to run the SIRS Web service
+ * 
+ * @author tweninge
+ *
+ */
 public class JettyHTTPServer {
 	// Resource path pointing to where the WEBROOT is
 	private static final String WEBROOT_INDEX = "../../../../webroot/";

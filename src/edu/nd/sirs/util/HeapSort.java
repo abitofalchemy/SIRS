@@ -1,5 +1,11 @@
 package edu.nd.sirs.util;
 
+/**
+ * Heap sort for arrays.
+ * 
+ * @author tweninge
+ *
+ */
 public class HeapSort {
 	/**
 	 * Builds a maximum heap.

@@ -14,6 +14,12 @@ import edu.nd.sirs.retrievalmodel.BooleanScoreModifier;
 import edu.nd.sirs.retrievalmodel.RetrievalModel;
 import edu.nd.sirs.retrievalmodel.ScoreModifier;
 
+/**
+ * Perform basic matching to answer queries
+ * 
+ * @author tweninge
+ *
+ */
 public class Matching {
 
 	private static final int RETRIEVED_SET_SIZE = 200;
@@ -26,12 +32,25 @@ public class Matching {
 	private ResultSet resultSet;
 	private RetrievalModel scorer;
 
+	/**
+	 * Simple constructor.
+	 * 
+	 * @param retrievalModel
+	 *            Retrieval model object to use to score documents.
+	 */
 	public Matching(RetrievalModel retrievalModel) {
 		scoreModifiers = new ArrayList<ScoreModifier>();
 		scorer = retrievalModel;
 		index = InvertedIndex.getInstance();
 	}
 
+	/**
+	 * Accumulates scores for documents that match query terms.
+	 * 
+	 * @param queryTerms
+	 *            Query with terms
+	 * @return ResultSet of ranked documents
+	 */
 	public ResultSet match(Query queryTerms) {
 		init(queryTerms);
 
@@ -53,8 +72,6 @@ public class Matching {
 		final HashMap<Integer, Hit> accumulators = new HashMap<Integer, Hit>();
 
 		List<Posting> currentPostingList = null;
-		float threshold = 0.0f;
-		// int scored = 0;
 
 		// while not end of all posting lists
 		for (int currentPostingListIndex = 0; currentPostingListIndex < postingListArray
@@ -95,10 +112,20 @@ public class Matching {
 		return numRetrievedDocs;
 	}
 
+	/**
+	 * Adds a score modifier to the finalizer function
+	 * 
+	 * @param sm
+	 */
 	public void addScoreModifier(ScoreModifier sm) {
 		scoreModifiers.add(sm);
 	}
 
+	/**
+	 * Turns Query of terms into a list of termIds by using the Lexicon Index
+	 * 
+	 * @param queryTerms
+	 */
 	private void init(Query queryTerms) {
 		List<String> queryTermStrings = queryTerms.getTerms();
 		queryTermsToMatchList = new HashMap<String, Integer>(
@@ -113,6 +140,11 @@ public class Matching {
 		}
 	}
 
+	/**
+	 * Runs all of the score finalizers
+	 * 
+	 * @param queryTerms
+	 */
 	private void finalize(Query queryTerms) {
 		int setSize = Math.min(RETRIEVED_SET_SIZE, numRetrievedDocs);
 		if (setSize == 0)
@@ -129,6 +161,18 @@ public class Matching {
 		}
 	}
 
+	/**
+	 * Interface to the retrieval model.
+	 * 
+	 * @param i
+	 *            posting list position
+	 * @param wModels
+	 *            retrieval model
+	 * @param h
+	 *            hit (aka result)
+	 * @param posting
+	 *            posting matching term form query
+	 */
 	private void assignScore(int i, final RetrievalModel wModels, Hit h,
 			final Posting posting) {
 		h.updateScore(wModels.score(posting));
