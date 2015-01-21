@@ -86,8 +86,12 @@ public class Matching {
 						.getDocId();
 
 				// We create a new hit for each new doc id considered
-				Hit currentCandidate = accumulators.getOrDefault(currentDocId,
-						new Hit(currentDocId));
+				Hit currentCandidate = null;
+				if(accumulators.containsKey(currentDocId)){
+					currentCandidate = accumulators.get(currentDocId);
+				}else{
+					currentCandidate = new Hit(currentDocId);
+				}				
 				accumulators.put(currentDocId, currentCandidate);
 
 				assignScore(currentPostingListIndex, scorer, currentCandidate,
@@ -179,6 +183,12 @@ public class Matching {
 		h.updateOccurrence((i < 16) ? (short) (1 << i) : 0);
 	}
 
+	/**
+	 * Simple testing main method
+	 * 
+	 * @param args
+	 *            none needed
+	 */
 	public static void main(String[] args) {
 		Matching m = new Matching(new BooleanRM());
 		m.addScoreModifier(new BooleanScoreModifier());
