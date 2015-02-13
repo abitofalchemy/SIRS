@@ -1,6 +1,5 @@
 package edu.nd.sirs.docs;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -49,7 +48,20 @@ public class TextDocument extends Document {
 
 	@Override
 	public List<String> parse(Integer docId, File f) {
-		return new ArrayList<String>();
+		ITokenizer tokenizer = new WhitespaceTextTokenizer();
+		List<String> toks = new ArrayList<String>();
+
+		try {
+			FileReader fr = new FileReader(f);
+			toks = tokenizer.tokenize(fr);
+			fr.close();
+		} catch (IOException e) {
+			logger.error("Error in parser", e);
+		}
+
+		numTokens = toks.size();
+
+		return toks;
 	}
 
 }
