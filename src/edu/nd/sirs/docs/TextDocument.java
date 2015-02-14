@@ -49,15 +49,7 @@ public class TextDocument extends Document {
 	@Override
 	public List<String> parse(Integer docId, File f) {
 		ITokenizer tokenizer = new WhitespaceTextTokenizer();
-		List<String> toks = new ArrayList<String>();
-
-		try {
-			FileReader fr = new FileReader(f);
-			toks = tokenizer.tokenize(fr);
-			fr.close();
-		} catch (IOException e) {
-			logger.error("Error in parser", e);
-		}
+		List<String> toks = tokenizer.tokenize(this.readFile(f));
 
 		numTokens = toks.size();
 
