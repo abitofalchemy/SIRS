@@ -47,13 +47,18 @@ public class TextDocument extends Document {
 	}
 
 	@Override
-	public List<String> parse(Integer docId, File f) {
+	public List<Token> parse(Integer docId, File f) {
+		Fields.getInstance().addField("body");
+		List<Token> tokens = new ArrayList<Token>();
 		ITokenizer tokenizer = new WhitespaceTextTokenizer();
 		List<String> toks = tokenizer.tokenize(this.readFile(f));
+		for(String t: toks){
+			tokens.add(new Token(t, Fields.getInstance().getFieldId("body")));
+		}
+		
+		numTokens.put(Fields.getInstance().getFieldId("body"), toks.size());
 
-		numTokens = toks.size();
-
-		return toks;
+		return tokens;
 	}
 
 }

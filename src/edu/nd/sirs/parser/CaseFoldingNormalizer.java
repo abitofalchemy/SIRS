@@ -16,7 +16,10 @@ public class CaseFoldingNormalizer implements INormalizer {
 	private static Logger logger = LoggerFactory.getLogger(CaseFoldingNormalizer.class);
 
 	public List<String> normalize(List<String> str) {
-		logger.info("Case Folding Normalizer...");
+		//logger.info("Case Folding Normalizer...");
+		for(int i=0; i<str.size(); i++){
+			str.set(i, str.get(i).toLowerCase());
+		}
 		return str;
 	}
 }
