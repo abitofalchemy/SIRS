@@ -24,7 +24,7 @@ public class Evaluate {
 	private static final String QRELS_FLDR = "./qrels/";
 	private static final Integer REL_THRESH = 2;
 
-	private static Logger logger = LoggerFactory.getLogger(Indexer.class);
+	private static Logger logger = LoggerFactory.getLogger(Evaluate.class);
 
 	private HashMap<String, Map<Integer, Integer>> rels;
 
@@ -101,7 +101,7 @@ public class Evaluate {
 							br.close();
 							return;
 						}
-						tbl.add(Integer.parseInt(rel[1]));
+						tbl.add(Integer.parseInt(rel[0]));
 					}
 				}
 
