@@ -95,7 +95,7 @@ public class Evaluate {
 					} else {
 						// 1 4103 2
 						String[] rel = line.split(" ");
-						if (rel.length != 3) {
+						if (rel.length != 2) {
 							logger.error("invalid qrels file: "
 									+ qrel.getAbsolutePath());
 							br.close();
