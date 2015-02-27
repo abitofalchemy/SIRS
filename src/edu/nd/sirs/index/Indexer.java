@@ -311,10 +311,10 @@ public class Indexer {
 		for (Entry<String, Field> f : Fields.getInstance().getEntries()) {
 			sb.append(f.getKey() + "," + f.getValue().field + ";");
 		}
-		outFile.println(sb.toString());
+		outFile.print(sb.toString() + "\n");
 
 		long currentTerm = 0l;
-		long currentTermOffset = sb.toString().length() + 1;
+		long currentTermOffset = sb.toString().length();
 
 		PrintWriter tosFile = new PrintWriter(IDXTERMOFFSET);
 		String wid = wordId + "\n";
