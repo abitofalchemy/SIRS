@@ -2,6 +2,9 @@ package edu.nd.sirs.index;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
@@ -111,7 +114,7 @@ public class Indexer {
 									+ t.getField().field);
 						}
 						toRemove.add(e.getKey());
-					}					
+					}
 				}
 				ancWriter.println(sb.toString());
 
@@ -215,20 +218,27 @@ public class Indexer {
 
 	private void reindexDocuments(Map<Integer, Integer> docIDlength)
 			throws FileNotFoundException {
-		BufferedReader br = new BufferedReader(new FileReader(new File(DOCIDX)));
+
+		
+
+		// BufferedReader br = new BufferedReader(new FileReader(new
+		// File(DOCIDX)));
 
 		PrintWriter docWriter = new PrintWriter(DOCIDX + "n");
 		PrintWriter docWriterOffset = new PrintWriter(DOCIDXOFFSET + "n");
 		long offset = 0;
 		String line = "";
 		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream(DOCIDX), "UTF8"));
+			
 			while ((line = br.readLine()) != null) {
 				String[] l = line.split("\t");
 				Integer dID = Integer.parseInt(l[0]);
 				String len = l[2];
-				if(docIDlength.containsKey(dID)){
-					len = len + "," + Fields.getInstance().getFieldId("link") + ":"
-						+ docIDlength.get(dID);
+				if (docIDlength.containsKey(dID)) {
+					len = len + "," + Fields.getInstance().getFieldId("link")
+							+ ":" + docIDlength.get(dID);
 				}
 				StringBuffer sb = new StringBuffer();
 				sb.append(l[0]);
@@ -250,9 +260,9 @@ public class Indexer {
 			e.printStackTrace();
 		}
 		docWriter.close();
-		docWriterOffset.close(); 
-		
-		File f = new File(DOCIDX);		
+		docWriterOffset.close();
+
+		File f = new File(DOCIDX);
 		f.delete();
 		new File(DOCIDXOFFSET).delete();
 		new File(DOCIDX + "n").renameTo(new File(DOCIDX));
