@@ -83,8 +83,8 @@ public class Indexer {
 		PrintWriter ancWriter;
 		PrintWriter docWriterOffset;
 		try {
-			docWriter = new PrintWriter(DOCIDX);
-			docWriterOffset = new PrintWriter(DOCIDXOFFSET);
+			docWriter = new PrintWriter(DOCIDX, "UTF-8");
+			docWriterOffset = new PrintWriter(DOCIDXOFFSET, "UTF-8");
 
 			ancWriter = new PrintWriter(ANCIDX);
 
@@ -224,8 +224,20 @@ public class Indexer {
 		// BufferedReader br = new BufferedReader(new FileReader(new
 		// File(DOCIDX)));
 
-		PrintWriter docWriter = new PrintWriter(DOCIDX + "n");
-		PrintWriter docWriterOffset = new PrintWriter(DOCIDXOFFSET + "n");
+		PrintWriter docWriter = null;
+		try {
+			docWriter = new PrintWriter(DOCIDX + "n", "UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		PrintWriter docWriterOffset = null;
+		try {
+			docWriterOffset = new PrintWriter(DOCIDXOFFSET + "n", "UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		long offset = 0;
 		String line = "";
 		try {
@@ -251,7 +263,10 @@ public class Indexer {
 				}
 				docWriter.print(sb.append("\n").toString());
 				docWriterOffset.println(offset);
-				offset += sb.toString().length();
+				if(sb.toString().length() != sb.toString().getBytes().length){
+					System.out.println("X");
+				}
+				offset += sb.toString().getBytes().length;
 			}
 			br.close();
 		} catch (NumberFormatException e) {
