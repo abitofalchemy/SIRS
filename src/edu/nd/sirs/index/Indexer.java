@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -242,11 +243,14 @@ public class Indexer {
 		String line = "";
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
-					new FileInputStream(DOCIDX), "UTF8"));
+					new FileInputStream(DOCIDX), "UTF-8"));
 			
 			while ((line = br.readLine()) != null) {
 				String[] l = line.split("\t");
 				Integer dID = Integer.parseInt(l[0]);
+				if(dID==145){
+					System.out.println();
+				}
 				String len = l[2];
 				if (docIDlength.containsKey(dID)) {
 					len = len + "," + Fields.getInstance().getFieldId("link")
@@ -263,10 +267,7 @@ public class Indexer {
 				}
 				docWriter.print(sb.append("\n").toString());
 				docWriterOffset.println(offset);
-				if(sb.toString().length() != sb.toString().getBytes().length){
-					System.out.println("X");
-				}
-				offset += sb.toString().getBytes().length;
+				offset += StringUtils.getBytesUtf8(sb.toString()).length;
 			}
 			br.close();
 		} catch (NumberFormatException e) {
