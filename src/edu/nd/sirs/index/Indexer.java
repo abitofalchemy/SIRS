@@ -3,12 +3,11 @@ package edu.nd.sirs.index;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -87,7 +86,7 @@ public class Indexer {
 			docWriter = new PrintWriter(DOCIDX, "UTF-8");
 			docWriterOffset = new PrintWriter(DOCIDXOFFSET, "UTF-8");
 
-			ancWriter = new PrintWriter(ANCIDX);
+			ancWriter = new PrintWriter(ANCIDX, "UTF-8");
 
 			// start the first run
 			logger.info("Starting the first indexer run.");
@@ -117,7 +116,7 @@ public class Indexer {
 						toRemove.add(e.getKey());
 					}
 				}
-				ancWriter.println(sb.toString());
+				ancWriter.print(sb.toString() + "\n");
 
 				for (String r : toRemove) {
 					doc.getResources().remove(r);
@@ -133,8 +132,8 @@ public class Indexer {
 
 				// Writing to Direct Index
 				String idxable = doc.writeToIndex();
-				docWriter.write(idxable);
-				written += idxable.length();
+				docWriter.write(idxable);				
+				written += StringUtils.getBytesUtf8(idxable).length;
 				docId++;
 			}
 			docWriter.close();
@@ -220,8 +219,6 @@ public class Indexer {
 	private void reindexDocuments(Map<Integer, Integer> docIDlength)
 			throws FileNotFoundException {
 
-		
-
 		// BufferedReader br = new BufferedReader(new FileReader(new
 		// File(DOCIDX)));
 
@@ -229,14 +226,12 @@ public class Indexer {
 		try {
 			docWriter = new PrintWriter(DOCIDX + "n", "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		PrintWriter docWriterOffset = null;
 		try {
 			docWriterOffset = new PrintWriter(DOCIDXOFFSET + "n", "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		long offset = 0;
@@ -244,13 +239,10 @@ public class Indexer {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(DOCIDX), "UTF-8"));
-			
+
 			while ((line = br.readLine()) != null) {
 				String[] l = line.split("\t");
 				Integer dID = Integer.parseInt(l[0]);
-				if(dID==145){
-					System.out.println();
-				}
 				String len = l[2];
 				if (docIDlength.containsKey(dID)) {
 					len = len + "," + Fields.getInstance().getFieldId("link")
@@ -321,7 +313,12 @@ public class Indexer {
 			mergeHeap.add(ro);
 		}
 
-		PrintWriter outFile = new PrintWriter(IDX);
+		PrintWriter outFile = null;
+		try {
+			outFile = new PrintWriter(IDX, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		// encode the fields in the invertedIndex
 		StringBuffer sb = new StringBuffer();
 		for (Entry<String, Field> f : Fields.getInstance().getEntries()) {
@@ -329,10 +326,15 @@ public class Indexer {
 		}
 		outFile.print(sb.toString() + "\n");
 
-		long currentTerm = 0l;
-		long currentTermOffset = sb.toString().length();
+		long currentTerm = 0l;		
+		long currentTermOffset = StringUtils.getBytesUtf8(sb.toString()).length+ 1;
 
-		PrintWriter tosFile = new PrintWriter(IDXTERMOFFSET);
+		PrintWriter tosFile = null;
+		try {
+			tosFile = new PrintWriter(IDXTERMOFFSET, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		String wid = wordId + "\n";
 		tosFile.print(wid);
 
@@ -357,7 +359,7 @@ public class Indexer {
 			}
 			// Saving to the file
 			if (first.getTermId() > currentTerm) {
-				tosFile.println(currentTermOffset + 1);
+				tosFile.print(currentTermOffset + "\n");
 
 				sb = new StringBuffer();
 				for (Field f : Fields.getInstance().getFields()) {
@@ -365,8 +367,8 @@ public class Indexer {
 				}
 
 				String p = currentTerm + ":" + df + "\t" + sb.toString() + "\n";
-				outFile.print(p);
-				currentTermOffset += p.getBytes().length;
+				outFile.print(p);				
+				currentTermOffset += StringUtils.getBytesUtf8(p).length;
 				currentTerm = first.getTermId();
 				for (Field f : Fields.getInstance().getFields()) {
 					posting.put(f, new StringBuffer());
